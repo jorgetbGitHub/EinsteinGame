@@ -25,6 +25,7 @@ namespace WebApplication
                 .ConfigureServices((_, services) =>
                     services.AddTransient<ITransientOperation, DefaultOperation>()
                             .AddScoped<IScopedOperation, DefaultOperation>()
+                            .AddScoped<IWordGameService, WordGameService>()
                             .AddSingleton<ISingletonOperation, DefaultOperation>()
                             .AddTransient<OperationLogger>())
                 .ConfigureWebHostDefaults(webBuilder =>

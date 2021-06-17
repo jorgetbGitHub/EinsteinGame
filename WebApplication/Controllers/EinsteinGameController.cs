@@ -1,5 +1,8 @@
+using Contracts;
+using Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Services;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,13 +15,26 @@ namespace WebApplication.Controllers
     [Route("[controller]")]
     public class EinsteinGameController : ControllerBase
     {
+        private readonly IWordGameService _wordGameService;
+        private readonly OperationLogger _operationLogger;
+
+        private readonly EinsteinGame EinsteinGame = new EinsteinGame();
+        public EinsteinGameController(IWordGameService wordGameService, OperationLogger operationLogger)
+        {
+            _wordGameService = wordGameService;
+            _operationLogger = operationLogger;
+        }
+
         [HttpGet("play/{start}")]
-        public IActionResult Play(string start)
+        public async Task<IActionResult> PlayAsync(string start)
         {
             int intStart;
+            string result;
             if (int.TryParse(start, out intStart))
             {
-                return Ok(PlayGame(intStart));
+                result = _wordGameService.PlayGame(intStart, 100, EinsteinGame);
+                await SaveGameSummaryAsync(result);
+                return Ok(result);
             }
             else
             {
@@ -26,46 +42,9 @@ namespace WebApplication.Controllers
             }
         }
 
-        public string PlayGame(int start)
+        public async Task SaveGameSummaryAsync(string result)
         {
-            string result = string.Empty;
-            for (int i = start; i < 100; i++)
-            {
-                if (i % 3 == 0 && i % 5 == 0)
-                {
-                    //Divisible by 3 and 5
-                    result += "fizzbuzz";
-
-                }
-                else if (i % 3 == 0)
-                {
-                    // Divisible by 3
-                    result += "fizz";
-
-                }
-                else if (i % 5 == 0)
-                {
-                    // Divisible by 5
-                    result += "buzz";
-                }
-                else
-                {
-                    // Neither divisible by 3 nor by 5
-                    result += i.ToString();
-                }
-
-                if (i != 100)
-                {
-                    result += ", ";
-                }
-            }
-
-            SaveGameSummary(result);
-            return result;
-        }
-
-        public void SaveGameSummary(string result)
-        {
+            string baseFilename = "einstein-game";
             string path = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + "Outputs";
             var files = Directory.GetFiles(path);
 
@@ -77,6 +56,7 @@ namespace WebApplication.Controllers
             else
             {
                 Console.WriteLine("Outputs folder is empty.");
+                await System.IO.File.WriteAllTextAsync($"{path}{Path.DirectorySeparatorChar}{baseFilename}.txt", result);
             }
             
         }
