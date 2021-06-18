@@ -8,11 +8,9 @@ namespace Entities
     {
         public EinsteinGame() : base()
         {
-            var rules = new WordRule[2];
-            rules[0] = new WordRule(3, "fizz", 0);
-            rules[1] = new WordRule(5, "buzz", 1);
-
-            RulesCollection = new RulesCollection<WordRule>(rules);
+            RulesCollection = new RulesCollection<WordRule>();
+            RulesCollection.AddRuleInPriorityOrder(new WordRule(3, "fizz"));
+            RulesCollection.AddRuleInPriorityOrder(new WordRule(5, "buzz"));
         }
     }
 }

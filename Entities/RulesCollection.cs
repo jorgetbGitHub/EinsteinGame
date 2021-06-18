@@ -27,6 +27,12 @@ namespace Entities
             Console.WriteLine($"Rules were introduces into RulesCollection successfully. {value}");
         }
 
+        public void AddRuleInPriorityOrder(TRule rule)
+        {
+            ((IRule)rule).SetPriority(Rules.Count);
+            Rules.Add(((IRule)rule).Priority, rule);
+        }
+
         public TRule GetRuleByPriority(int priority)
         {
             TRule rule;

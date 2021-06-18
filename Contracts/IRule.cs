@@ -7,5 +7,7 @@ namespace Contracts
     public interface IRule
     {
         public int Priority { get; }
+
+        public void SetPriority(int priority);
     }
 }

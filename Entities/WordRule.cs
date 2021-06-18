@@ -11,6 +11,12 @@ namespace Entities
 
         protected string Word { get; }
 
+        public WordRule(int divider, string word): base()
+        {
+            Divider = divider;
+            Word = word;
+        }
+
         public WordRule(int divider, string word, int priority) : base(priority)
         {
             Divider = divider;
