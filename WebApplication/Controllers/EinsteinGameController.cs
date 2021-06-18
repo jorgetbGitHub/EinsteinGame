@@ -2,9 +2,11 @@ using Contracts;
 using Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Services;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,26 +17,39 @@ namespace WebApplication.Controllers
     [Route("[controller]")]
     public class EinsteinGameController : ControllerBase
     {
+        private readonly AppSettings _appSettings;
         private readonly IWordGameService _wordGameService;
+        private readonly IGameSummaryService _gameSummaryService;
         private readonly OperationLogger _operationLogger;
 
         private readonly EinsteinGame EinsteinGame = new EinsteinGame();
-        public EinsteinGameController(IWordGameService wordGameService, OperationLogger operationLogger)
+        public EinsteinGameController(IOptions<AppSettings> appSettings, IWordGameService wordGameService, 
+            IGameSummaryService gameSummaryService, OperationLogger operationLogger)
         {
             _wordGameService = wordGameService;
+            _gameSummaryService = gameSummaryService;
             _operationLogger = operationLogger;
+            _appSettings = appSettings.Value;
         }
 
         [HttpGet("play/{start}")]
         public async Task<IActionResult> PlayAsync(string start)
         {
-            int intStart;
+            int limitGame = _appSettings.LimitGame;
+
             string result;
-            if (int.TryParse(start, out intStart))
+            if (int.TryParse(start, out int intStart))
             {
-                result = _wordGameService.PlayGame(intStart, 100, EinsteinGame);
-                await SaveGameSummaryAsync(result);
-                return Ok(result);
+                try
+                {
+                    result = _wordGameService.PlayGame(intStart, limitGame, EinsteinGame);
+                    await _gameSummaryService.SaveSummaryAsync(new Summary(DateTime.UtcNow, result));
+                    return Ok(result);
+                } catch (Exception ex)
+                {
+                    _operationLogger.LogOperations(this, "[PlayAsync]", "An error occurred while handlind /play request.", ex, false);
+                    return BadRequest(ex.Message);
+                }
             }
             else
             {
@@ -42,24 +57,6 @@ namespace WebApplication.Controllers
             }
         }
 
-        public async Task SaveGameSummaryAsync(string result)
-        {
-            string baseFilename = "einstein-game";
-            string path = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + "Outputs";
-            var files = Directory.GetFiles(path);
-
-            bool isEmpty = !files.Any();
-            if (!isEmpty)
-            {
-                Console.WriteLine("Outputs folder is not empty.");
-            }
-            else
-            {
-                Console.WriteLine("Outputs folder is empty.");
-                await System.IO.File.WriteAllTextAsync($"{path}{Path.DirectorySeparatorChar}{baseFilename}.txt", result);
-            }
-            
-        }
     }
 
 }

@@ -22,10 +22,11 @@ namespace WebApplication
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureServices((_, services) =>
+                .ConfigureServices((_, services) => 
                     services.AddTransient<ITransientOperation, DefaultOperation>()
                             .AddScoped<IScopedOperation, DefaultOperation>()
                             .AddScoped<IWordGameService, WordGameService>()
+                            .AddScoped<IGameSummaryService, GameSummaryService>()
                             .AddSingleton<ISingletonOperation, DefaultOperation>()
                             .AddTransient<OperationLogger>())
                 .ConfigureWebHostDefaults(webBuilder =>
