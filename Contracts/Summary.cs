@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Contracts
@@ -10,10 +11,10 @@ namespace Contracts
 
         public string TextResult { get; }
 
-        public Summary(DateTime date, string textResult)
+        public Summary(DateTime date, List<string> result)
         {
             Date = date;
-            TextResult = textResult;
+            TextResult = result.Aggregate((i,j) => i + ", " + j);
         }
     }
 }

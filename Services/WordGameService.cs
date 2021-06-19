@@ -12,26 +12,21 @@ namespace Services
         {
             _operationLogger = operationLogger;
         }
-        public string PlayGame(int start, int end, IWordGame wordGame)
+        public List<string> PlayGame(int start, int end, IWordGame wordGame)
         {
-            string result = string.Empty;
+            List<string> list = new List<string>();
             for (int i = start; i < end + 1; i++)
             {
                 try
                 {
-                    result += wordGame.Play(i);
+                    list.Add(wordGame.Play(i));
                 }catch(Exception ex)
                 {
                     _operationLogger.LogOperations(this, "[Play]", "An error ocurred during playing word game", ex);
                 }
-
-                if (i != end)
-                {
-                    result += ", ";
-                }
             }
 
-            return result;
+            return list;
         }
     }
 }

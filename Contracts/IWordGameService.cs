@@ -6,6 +6,6 @@ namespace Contracts
 {
     public interface IWordGameService
     {
-        public string PlayGame(int start, int end, IWordGame wordGame);
+        public List<string> PlayGame(int start, int end, IWordGame wordGame);
     }
 }

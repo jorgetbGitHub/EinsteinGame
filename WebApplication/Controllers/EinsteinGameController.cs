@@ -36,8 +36,7 @@ namespace WebApplication.Controllers
         public async Task<IActionResult> PlayAsync(string start)
         {
             int limitGame = _appSettings.LimitGame;
-
-            string result;
+            List<string> result;
             if (int.TryParse(start, out int intStart))
             {
                 try
